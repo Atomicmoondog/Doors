@@ -1,6 +1,11 @@
+wait(0.5)
+print("Loaded Doors In 0.5 Seconds")
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local Window = Library.CreateLib("Doors", "Serpent")
-
+local CF = CFrame.new
+local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
+local ChaseStart = game:GetService("ReplicatedStorage").GameData.ChaseStart
 local Tab = Window:NewTab("Main")
 local MainSection = Tab:NewSection("Main")
 local Tab = Window:NewTab("Character")
@@ -110,19 +115,55 @@ CharacterSection:NewToggle("WalkSpeed 30", "--", function(state)
     end
 end)
 
+MainSection:NewButton("No Jumpscares", "--", function()
+    game:GetService("ReplicatedStorage").Bricks.Jumpscare:Destroy()
+end)
 
 
 
+MainSection:NewButton("Key Esp", "--", function()
+    local function ApplyKeyChams(inst)
+        wait()
+        local Cham = Instance.new("Highlight")
+        Cham.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        Cham.FillColor = Color3.new(0.980392, 0.670588, 0)
+        Cham.FillTransparency = 0.5
+        Cham.OutlineColor = Color3.new(0.792156, 0.792156, 0.792156)
+        Cham.Parent = game:GetService("CoreGui")
+        Cham.Adornee = inst
+        Cham.Enabled = OrionLib.Flags["KeyToggle"].Value
+        Cham.RobloxLocked = true
+        return Cham
+    end
+    
+    local KeyCoroutine = coroutine.create(function()
+        workspace.CurrentRooms.DescendantAdded:Connect(function(inst)
+            if inst.Name == "KeyObtain" then
+                table.insert(KeyChams,ApplyKeyChams(inst))
+            end
+        end)
+    end)
+    for i,v in ipairs(workspace:GetDescendants()) do
+        if v.Name == "KeyObtain" then
+            table.insert(KeyChams,ApplyKeyChams(v))
+        end
+    end
+    coroutine.resume(KeyCoroutine)
+    
+end)
+
+local pcl = Instance.new("SpotLight")
+pcl.Brightness = 1
+pcl.Face = Enum.NormalId.Front
+pcl.Range = 90
+pcl.Parent = game.Players.LocalPlayer.Character.Head
+pcl.Enabled = false
 
 
-
-
-
-
-
-
-
-
-
-
-
+CharacterSection:NewToggle("Headlight (Not Working)", "--", function(state)
+    if state then
+        pcl.Enabled = Value
+    else
+        pcl.Disbaled = Value
+    end
+end)
